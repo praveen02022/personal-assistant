@@ -1,0 +1,95 @@
+// PersonalOS-managed OpenClaw config (applied with `openclaw config patch`).
+// Source of truth lives in the repo; the Gateway's openclaw.json in the state
+// volume also carries runtime-written metadata, so we patch rather than replace.
+{
+  gateway: {
+    // Our NestJS backend is the only control/approval surface for this Gateway.
+    // The bundled Control UI would be a second operator surface able to resolve approvals.
+    controlUi: { enabled: false },
+    // Coarse emergency layer, independent of agent/tool profiles.
+    tools: {
+      deny: [
+        "group:runtime",    // exec, process, code_execution
+        "group:fs",         // read, write, edit, apply_patch
+        "group:ui",         // browser, canvas
+        "group:automation", // heartbeat_respond, cron, gateway
+        "group:messaging",  // message
+        "group:nodes",      // nodes (remote device actions)
+        "sessions_spawn", "sessions_send", "subagents",
+        "image_generate", "music_generate", "video_generate",
+        "presence", // exposes connected devices, IPs, approximate location
+        "openclaw", // agent-driven persistent config changes
+      ],
+    },
+  },
+
+  tools: {
+    // Code Mode is experimental and auto-engages for "preferred" models (incl. gpt-6-astra).
+    // Its default Node executor (node:vm) is documented as NOT a security boundary.
+    codeMode: { enabled: false },
+    // Tool Search (experimental, on by default for embedded runs) wraps calls in tool_call;
+    // with a small catalog we prefer direct schemas and a flat, auditable event stream.
+    toolSearch: false,
+    // Baseline for every agent on this Gateway. In 2026.10.9 "minimal" = session_status + presence (presence denied below).
+    profile: "minimal",
+    deny: [
+      "group:runtime", "group:fs", "group:ui", "group:automation",
+      "group:messaging", "group:nodes",
+      "sessions_spawn", "sessions_send", "subagents",
+      "presence", "openclaw",
+    ],
+  },
+
+  session: {
+    // Explicit: version defaults have changed before (daily in 2026.7.x, none in 2026.10.x).
+    reset: { mode: "none" },
+  },
+
+  // No autonomous background model turns until Automations (Phase 5) is designed.
+  plugins: {
+    entries: {
+      "memory-core": { config: { dreaming: { enabled: false } } },
+    },
+  },
+
+  agents: {
+    defaults: {
+      heartbeat: { every: "0m" },
+    },
+    entries: {
+      // Onboarding-created agent; still the ambient heartbeat/system owner. It has no model
+      // credentials, but pin it to the OpenClaw runtime so gateway tool policy applies if it ever runs.
+      main: {
+        models: {
+          "openai/gpt-6-astra": { agentRuntime: { id: "openclaw" }, codeMode: false },
+          "openai/gpt-5.6-luna": { agentRuntime: { id: "openclaw" }, codeMode: false },
+        },
+        heartbeat: { every: "0m" },
+      },
+      personalos: {
+        name: "personalos",
+        identity: { name: "PersonalOS" },
+        workspace: "/home/node/.openclaw/workspace-personalos",
+        agentDir: "/home/node/.openclaw/agents/personalos/agent",
+        skills: [], // no skills until the skills phase
+        heartbeat: { every: "0m" },
+        // Model auth: Codex OAuth profile "openai-codex:personalos" (stored in this agent's
+        // own store). Swap to an API-key profile later without touching the app.
+        model: { primary: "openai/gpt-6-astra", fallbacks: [] },
+        // Pin the OpenClaw embedded runtime. With Codex OAuth the implicit runtime is the
+        // native Codex harness, which keeps its own tool surface; OpenClaw's tool policy
+        // and before_tool_call hooks are only authoritative on the OpenClaw runtime.
+        models: {
+          "openai/gpt-6-astra": { agentRuntime: { id: "openclaw" }, codeMode: false },
+          "openai/gpt-5.6-luna": { agentRuntime: { id: "openclaw" }, codeMode: false },
+        },
+        tools: {
+          profile: "minimal",
+          codeMode: { enabled: false },
+          // Read-only information tools only.
+          alsoAllow: ["web_search", "web_fetch"],
+        },
+      },
+    },
+  },
+}

@@ -1,0 +1,1115 @@
+{
+ "agentId": "personalos",
+ "profiles": [
+  {
+   "id": "minimal",
+   "label": "Minimal"
+  },
+  {
+   "id": "coding",
+   "label": "Coding"
+  },
+  {
+   "id": "messaging",
+   "label": "Messaging"
+  },
+  {
+   "id": "full",
+   "label": "Full"
+  }
+ ],
+ "groups": [
+  {
+   "id": "fs",
+   "label": "Files",
+   "source": "core",
+   "tools": [
+    {
+     "id": "ls",
+     "label": "ls",
+     "description": "List directory entries",
+     "source": "core",
+     "defaultProfiles": [
+      "coding"
+     ]
+    },
+    {
+     "id": "read",
+     "label": "read",
+     "description": "Read file contents",
+     "source": "core",
+     "defaultProfiles": [
+      "coding"
+     ]
+    },
+    {
+     "id": "write",
+     "label": "write",
+     "description": "Create or overwrite files",
+     "source": "core",
+     "defaultProfiles": [
+      "coding"
+     ]
+    },
+    {
+     "id": "edit",
+     "label": "edit",
+     "description": "Make precise edits",
+     "source": "core",
+     "defaultProfiles": [
+      "coding"
+     ]
+    },
+    {
+     "id": "apply_patch",
+     "label": "apply_patch",
+     "description": "Patch files",
+     "source": "core",
+     "defaultProfiles": [
+      "coding"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "runtime",
+   "label": "Runtime",
+   "source": "core",
+   "tools": [
+    {
+     "id": "exec",
+     "label": "exec",
+     "description": "Run shell now.",
+     "source": "core",
+     "defaultProfiles": [
+      "coding"
+     ]
+    },
+    {
+     "id": "process",
+     "label": "process",
+     "description": "Inspect/control exec sessions.",
+     "source": "core",
+     "defaultProfiles": [
+      "coding"
+     ]
+    },
+    {
+     "id": "code_execution",
+     "label": "code_execution",
+     "description": "Run sandboxed remote analysis",
+     "source": "core",
+     "defaultProfiles": [
+      "coding"
+     ]
+    },
+    {
+     "id": "secrets",
+     "label": "secrets",
+     "description": "Request and manage write-only credentials",
+     "source": "core",
+     "defaultProfiles": [
+      "coding",
+      "messaging"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "web",
+   "label": "Web",
+   "source": "core",
+   "tools": [
+    {
+     "id": "web_search",
+     "label": "web_search",
+     "description": "Search the web",
+     "source": "core",
+     "defaultProfiles": [
+      "coding"
+     ]
+    },
+    {
+     "id": "web_fetch",
+     "label": "web_fetch",
+     "description": "Fetch web content",
+     "source": "core",
+     "defaultProfiles": [
+      "coding"
+     ]
+    },
+    {
+     "id": "x_search",
+     "label": "x_search",
+     "description": "Search X posts",
+     "source": "core",
+     "defaultProfiles": [
+      "coding"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "memory",
+   "label": "Memory",
+   "source": "core",
+   "tools": [
+    {
+     "id": "memory_search",
+     "label": "memory_search",
+     "description": "Semantic search",
+     "source": "core",
+     "defaultProfiles": [
+      "coding"
+     ]
+    },
+    {
+     "id": "memory_get",
+     "label": "memory_get",
+     "description": "Read memory files",
+     "source": "core",
+     "defaultProfiles": [
+      "coding"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "sessions",
+   "label": "Sessions",
+   "source": "core",
+   "tools": [
+    {
+     "id": "presence",
+     "label": "presence",
+     "description": "Online people, connected devices, recent activity, and connection location",
+     "source": "core",
+     "defaultProfiles": [
+      "minimal",
+      "coding",
+      "messaging"
+     ]
+    },
+    {
+     "id": "sessions",
+     "label": "sessions",
+     "description": "Session settings: label, pin, archive, groups",
+     "source": "core",
+     "defaultProfiles": [
+      "coding",
+      "messaging"
+     ]
+    },
+    {
+     "id": "sessions_list",
+     "label": "sessions_list",
+     "description": "List visible sessions; filters/previews.",
+     "source": "core",
+     "defaultProfiles": [
+      "coding",
+      "messaging"
+     ]
+    },
+    {
+     "id": "sessions_history",
+     "label": "sessions_history",
+     "description": "Read sanitized session history.",
+     "source": "core",
+     "defaultProfiles": [
+      "coding",
+      "messaging"
+     ]
+    },
+    {
+     "id": "sessions_search",
+     "label": "sessions_search",
+     "description": "Search past session transcripts.",
+     "source": "core",
+     "defaultProfiles": [
+      "coding",
+      "messaging"
+     ]
+    },
+    {
+     "id": "conversations_list",
+     "label": "conversations_list",
+     "description": "List exact external conversation addresses",
+     "source": "core",
+     "defaultProfiles": [
+      "coding",
+      "messaging"
+     ]
+    },
+    {
+     "id": "conversations_send",
+     "label": "conversations_send",
+     "description": "Send to an exact external conversation",
+     "source": "core",
+     "defaultProfiles": [
+      "coding",
+      "messaging"
+     ]
+    },
+    {
+     "id": "conversations_turn",
+     "label": "conversations_turn",
+     "description": "Send and wait for a correlated external reply",
+     "source": "core",
+     "defaultProfiles": [
+      "coding",
+      "messaging"
+     ]
+    },
+    {
+     "id": "sessions_send",
+     "label": "sessions_send",
+     "description": "Run same-Gateway session/agent.",
+     "source": "core",
+     "defaultProfiles": [
+      "coding",
+      "messaging"
+     ]
+    },
+    {
+     "id": "sessions_spawn",
+     "label": "sessions_spawn",
+     "description": "Spawn hidden subagent (ephemeral) or visible work session (durable).",
+     "source": "core",
+     "defaultProfiles": [
+      "coding",
+      "messaging"
+     ]
+    },
+    {
+     "id": "github_identity_status",
+     "label": "github_identity_status",
+     "description": "Inspect the effective GitHub identity and credential health",
+     "source": "core",
+     "defaultProfiles": [
+      "coding"
+     ]
+    },
+    {
+     "id": "github_publish",
+     "label": "github_publish",
+     "description": "Publish the reconciled session worktree as a draft GitHub pull request",
+     "source": "core",
+     "defaultProfiles": [
+      "coding"
+     ]
+    },
+    {
+     "id": "agents_wait",
+     "label": "agents_wait",
+     "description": "Wait for collector subagents.",
+     "source": "core",
+     "defaultProfiles": [
+      "coding"
+     ]
+    },
+    {
+     "id": "sessions_yield",
+     "label": "sessions_yield",
+     "description": "End turn to receive sub-agent results",
+     "source": "core",
+     "defaultProfiles": [
+      "coding",
+      "messaging"
+     ]
+    },
+    {
+     "id": "subagents",
+     "label": "subagents",
+     "description": "Background work: subagents, media gen, automation runs. list/cancel.",
+     "source": "core",
+     "defaultProfiles": [
+      "coding",
+      "messaging"
+     ]
+    },
+    {
+     "id": "session_status",
+     "label": "session_status",
+     "description": "Show session status/model/usage.",
+     "source": "core",
+     "defaultProfiles": [
+      "minimal",
+      "coding",
+      "messaging"
+     ]
+    },
+    {
+     "id": "suggest_task",
+     "label": "suggest_task",
+     "description": "Suggest follow-up work for operator approval.",
+     "source": "core",
+     "defaultProfiles": [
+      "coding"
+     ]
+    },
+    {
+     "id": "dismiss_task",
+     "label": "dismiss_task",
+     "description": "Withdraw a pending task suggestion.",
+     "source": "core",
+     "defaultProfiles": [
+      "coding"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "ui",
+   "label": "UI",
+   "source": "core",
+   "tools": [
+    {
+     "id": "browser",
+     "label": "browser",
+     "description": "Control web browser",
+     "source": "core",
+     "defaultProfiles": []
+    },
+    {
+     "id": "screen",
+     "label": "screen",
+     "description": "Drive operator web UI",
+     "source": "core",
+     "defaultProfiles": [
+      "coding"
+     ]
+    },
+    {
+     "id": "theme",
+     "label": "theme",
+     "description": "List, select, and create appearance themes",
+     "source": "core",
+     "defaultProfiles": [
+      "coding",
+      "messaging"
+     ]
+    },
+    {
+     "id": "dashboard",
+     "label": "dashboard",
+     "description": "Read and arrange the session dashboard",
+     "source": "core",
+     "defaultProfiles": [
+      "coding"
+     ]
+    },
+    {
+     "id": "terminal",
+     "label": "terminal",
+     "description": "Use shared operator terminals with policy-governed input",
+     "source": "core",
+     "defaultProfiles": [
+      "coding"
+     ]
+    },
+    {
+     "id": "portal",
+     "label": "portal",
+     "description": "Expose local web apps through the gateway",
+     "source": "core",
+     "defaultProfiles": [
+      "coding"
+     ]
+    },
+    {
+     "id": "canvas",
+     "label": "canvas",
+     "description": "Control node Canvas surfaces when the Canvas plugin is enabled",
+     "source": "core",
+     "defaultProfiles": []
+    },
+    {
+     "id": "show_widget",
+     "label": "show_widget",
+     "description": "Show an interactive widget on chat or an auto-fitting dashboard",
+     "source": "core",
+     "defaultProfiles": []
+    }
+   ]
+  },
+  {
+   "id": "messaging",
+   "label": "Messaging",
+   "source": "core",
+   "tools": [
+    {
+     "id": "message",
+     "label": "message",
+     "description": "Send messages",
+     "source": "core",
+     "defaultProfiles": [
+      "messaging"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "automation",
+   "label": "Automation",
+   "source": "core",
+   "tools": [
+    {
+     "id": "heartbeat_respond",
+     "label": "heartbeat_respond",
+     "description": "Accept heartbeat outcomes for post-turn handling",
+     "source": "core",
+     "defaultProfiles": []
+    },
+    {
+     "id": "automations",
+     "label": "automations",
+     "description": "Schedule reminders, automations, wake events.",
+     "source": "core",
+     "defaultProfiles": [
+      "coding"
+     ]
+    },
+    {
+     "id": "gateway",
+     "label": "gateway",
+     "description": "Update OpenClaw; read Gateway config/schema when permitted",
+     "source": "core",
+     "defaultProfiles": [
+      "minimal",
+      "coding",
+      "messaging"
+     ]
+    },
+    {
+     "id": "plugins",
+     "label": "plugins",
+     "description": "Manage and reload plugins",
+     "source": "core",
+     "defaultProfiles": [
+      "coding"
+     ]
+    },
+    {
+     "id": "openclaw",
+     "label": "openclaw",
+     "description": "Delegate OpenClaw setup and repair",
+     "source": "core",
+     "defaultProfiles": []
+    }
+   ]
+  },
+  {
+   "id": "nodes",
+   "label": "Nodes",
+   "source": "core",
+   "tools": [
+    {
+     "id": "nodes",
+     "label": "nodes",
+     "description": "Nodes + devices",
+     "source": "core",
+     "defaultProfiles": []
+    },
+    {
+     "id": "computer",
+     "label": "computer",
+     "description": "Control the Gateway desktop or a paired computer",
+     "source": "core",
+     "defaultProfiles": []
+    },
+    {
+     "id": "mobile_ui",
+     "label": "mobile_ui",
+     "description": "Observe and control a paired Android app",
+     "source": "core",
+     "defaultProfiles": []
+    }
+   ]
+  },
+  {
+   "id": "agents",
+   "label": "Agents",
+   "source": "core",
+   "tools": [
+    {
+     "id": "decision_evaluate",
+     "label": "decision_evaluate",
+     "description": "Evaluate explicit evidence with the agent's decision model",
+     "source": "core",
+     "defaultProfiles": [
+      "coding",
+      "messaging"
+     ]
+    },
+    {
+     "id": "agents_list",
+     "label": "agents_list",
+     "description": "List agents",
+     "source": "core",
+     "defaultProfiles": []
+    },
+    {
+     "id": "get_goal",
+     "label": "get_goal",
+     "description": "Get current thread goal",
+     "source": "core",
+     "defaultProfiles": [
+      "coding"
+     ]
+    },
+    {
+     "id": "create_goal",
+     "label": "create_goal",
+     "description": "Create a thread goal",
+     "source": "core",
+     "defaultProfiles": [
+      "coding"
+     ]
+    },
+    {
+     "id": "update_goal",
+     "label": "update_goal",
+     "description": "Complete or block a thread goal",
+     "source": "core",
+     "defaultProfiles": [
+      "coding"
+     ]
+    },
+    {
+     "id": "progress_card",
+     "label": "progress_card",
+     "description": "Maintain the session progress card",
+     "source": "core",
+     "defaultProfiles": [
+      "coding"
+     ]
+    },
+    {
+     "id": "ask_user",
+     "label": "ask_user",
+     "description": "Ask the user and wait for an answer.",
+     "source": "core",
+     "defaultProfiles": [
+      "coding",
+      "messaging"
+     ]
+    },
+    {
+     "id": "skill_workshop",
+     "label": "skill_workshop",
+     "description": "Save, improve, archive, and restore your learned skills.",
+     "source": "core",
+     "defaultProfiles": [
+      "coding"
+     ]
+    },
+    {
+     "id": "skills_search",
+     "label": "skills_search",
+     "description": "Search installed eligible skills",
+     "source": "core",
+     "defaultProfiles": [
+      "coding"
+     ]
+    },
+    {
+     "id": "skills_read",
+     "label": "skills_read",
+     "description": "Read complete installed skill instructions",
+     "source": "core",
+     "defaultProfiles": [
+      "coding"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "media",
+   "label": "Media",
+   "source": "core",
+   "tools": [
+    {
+     "id": "view_image",
+     "label": "view_image",
+     "description": "Image understanding",
+     "source": "core",
+     "defaultProfiles": [
+      "coding"
+     ]
+    },
+    {
+     "id": "image_generate",
+     "label": "image_generate",
+     "description": "Image generation",
+     "source": "core",
+     "defaultProfiles": [
+      "coding"
+     ]
+    },
+    {
+     "id": "music_generate",
+     "label": "music_generate",
+     "description": "Music generation",
+     "source": "core",
+     "defaultProfiles": [
+      "coding"
+     ]
+    },
+    {
+     "id": "video_generate",
+     "label": "video_generate",
+     "description": "Video generation",
+     "source": "core",
+     "defaultProfiles": [
+      "coding"
+     ]
+    },
+    {
+     "id": "transcripts",
+     "label": "transcripts",
+     "description": "Inspect and manage meeting transcript captures",
+     "source": "core",
+     "defaultProfiles": []
+    },
+    {
+     "id": "tts",
+     "label": "tts",
+     "description": "Text-to-speech conversion",
+     "source": "core",
+     "defaultProfiles": []
+    },
+    {
+     "id": "pdf",
+     "label": "pdf",
+     "description": "PDF reading and extraction",
+     "source": "core",
+     "defaultProfiles": []
+    }
+   ]
+  },
+  {
+   "id": "plugin:codex",
+   "label": "codex",
+   "source": "plugin",
+   "pluginId": "codex",
+   "tools": [
+    {
+     "id": "codex_plugins",
+     "label": "Codex Plugins",
+     "description": "Discover available Codex plugins without installing or enabling them.",
+     "fullDescription": "Discover available Codex plugins without installing or enabling them.",
+     "parameters": [
+      {
+       "name": "query",
+       "required": false,
+       "type": "string"
+      },
+      {
+       "name": "marketplace",
+       "required": false,
+       "type": "string"
+      },
+      {
+       "name": "limit",
+       "required": false,
+       "type": "integer"
+      }
+     ],
+     "optional": false,
+     "risk": "low",
+     "tags": [
+      "codex",
+      "plugins",
+      "discovery"
+     ],
+     "source": "plugin",
+     "pluginId": "codex",
+     "defaultProfiles": []
+    },
+    {
+     "id": "codex_threads",
+     "label": "Codex Threads",
+     "description": "Manage native Codex threads in the shared user Codex home.",
+     "fullDescription": "Manage native Codex threads in the shared user Codex home.",
+     "optional": false,
+     "risk": "high",
+     "tags": [
+      "codex",
+      "sessions"
+     ],
+     "source": "plugin",
+     "pluginId": "codex",
+     "defaultProfiles": []
+    }
+   ]
+  },
+  {
+   "id": "plugin:file-transfer",
+   "label": "file-transfer",
+   "source": "plugin",
+   "pluginId": "file-transfer",
+   "tools": [
+    {
+     "id": "dir_fetch",
+     "label": "Directory Fetch",
+     "description": "Retrieve a whole directory tree, including dotfiles, from a paired node as a gzipped tarball. Unpack it on the...",
+     "fullDescription": "Retrieve a whole directory tree, including dotfiles, from a paired node as a gzipped tarball. Unpack it on the gateway. Text is limited to 8192 UTF-8 bytes and shows rootDir, total fileCount and a prefix of complete saved relPath and size records when representable; full files and media metadata stay in structured details. Use rootDir plus relPath for local follow-up operations. Omitted files remain saved under rootDir; inspect them with available local file or directory capabilities. There is no fetch pagination. A denied descendant rejects the whole transfer. Rejects trees larger than 16 MB …<+196 chars>",
+     "parameters": [
+      {
+       "name": "node",
+       "required": true,
+       "type": "string",
+       "description": "Existing paired node id, display name, or IP shown by nodes status. Do not use local, host, gateway, or auto; use local file/exec tools for local workspace paths."
+      },
+      {
+       "name": "path",
+       "required": true,
+       "type": "string",
+       "description": "Absolute path to the directory on the node to fetch. Canonicalized server-side."
+      },
+      {
+       "name": "maxBytes",
+       "required": false,
+       "type": "integer",
+       "description": "Max gzipped tarball bytes to fetch. Default 8 MB, hard ceiling 16 MB (single round-trip)."
+      },
+      {
+       "name": "gatewayUrl",
+       "required": false,
+       "type": "string"
+      },
+      {
+       "name": "gatewayToken",
+       "required": false,
+       "type": "string"
+      },
+      {
+       "name": "timeoutMs",
+       "required": false,
+       "type": "integer"
+      }
+     ],
+     "optional": false,
+     "source": "plugin",
+     "pluginId": "file-transfer",
+     "defaultProfiles": []
+    },
+    {
+     "id": "dir_list",
+     "label": "Directory List",
+     "description": "Retrieve a directory listing from a paired node, not the local workspace. Text is limited to 8192 UTF-8 bytes and...",
+     "fullDescription": "Retrieve a directory listing from a paired node, not the local workspace. Text is limited to 8192 UTF-8 bytes and shows complete names, isDir and sizes under the canonical path when representable; full returned metadata stays in structured details. Use this to discover remote paths before requesting file content. For text pagination, pass the text's nextPageToken as pageToken with the same node and path; it resumes after the last displayed entry and may differ from the structured token. An unrepresentable first entry reports that pagination cannot advance. Requires operator opt-in: gateway.nod…<+195 chars>",
+     "parameters": [
+      {
+       "name": "node",
+       "required": true,
+       "type": "string",
+       "description": "Existing paired node id, display name, or IP shown by nodes status. Do not use local, host, gateway, or auto; use local file/exec tools for local workspace paths."
+      },
+      {
+       "name": "path",
+       "required": true,
+       "type": "string",
+       "description": "Absolute path to the directory on the node. Canonicalized server-side."
+      },
+      {
+       "name": "pageToken",
+       "required": false,
+       "type": "string",
+       "description": "Pagination token from a previous dir_list call. Omit to start from the beginning."
+      },
+      {
+       "name": "maxEntries",
+       "required": false,
+       "type": "integer",
+       "description": "Max entries per page. Default 200, hard ceiling 5000."
+      },
+      {
+       "name": "gatewayUrl",
+       "required": false,
+       "type": "string"
+      },
+      {
+       "name": "gatewayToken",
+       "required": false,
+       "type": "string"
+      },
+      {
+       "name": "timeoutMs",
+       "required": false,
+       "type": "integer"
+      }
+     ],
+     "optional": false,
+     "source": "plugin",
+     "pluginId": "file-transfer",
+     "defaultProfiles": []
+    },
+    {
+     "id": "file_fetch",
+     "label": "File Fetch",
+     "description": "Retrieve a file from a paired node by absolute path. Saves all fetched bytes in the gateway's file-transfer media...",
+     "fullDescription": "Retrieve a file from a paired node by absolute path. Saves all fetched bytes in the gateway's file-transfer media store and returns localPath and mediaId. Returns supported images as image content blocks and inlines small text files (≤8 KB). Use this for screenshots, photos, receipts, logs, source files. The mediaId can be reused as sourceMediaId for binary copies when node-write capability is available. Requires operator opt-in: gateway.nodes.commands.allow must include 'file.fetch', and file-transfer policy must authorize the path through allowReadPaths or a remembered exact approval. Withou…<+42 chars>",
+     "parameters": [
+      {
+       "name": "node",
+       "required": true,
+       "type": "string",
+       "description": "Existing paired node id, display name, or IP shown by nodes status. Do not use local, host, gateway, or auto; use local file/exec tools for local workspace paths."
+      },
+      {
+       "name": "path",
+       "required": true,
+       "type": "string",
+       "description": "Absolute path to the file on the node. Canonicalized server-side."
+      },
+      {
+       "name": "maxBytes",
+       "required": false,
+       "type": "integer",
+       "description": "Max bytes to fetch. Default 8 MB, hard ceiling 16 MB (single round-trip)."
+      },
+      {
+       "name": "gatewayUrl",
+       "required": false,
+       "type": "string"
+      },
+      {
+       "name": "gatewayToken",
+       "required": false,
+       "type": "string"
+      },
+      {
+       "name": "timeoutMs",
+       "required": false,
+       "type": "integer"
+      }
+     ],
+     "optional": false,
+     "source": "plugin",
+     "pluginId": "file-transfer",
+     "defaultProfiles": []
+    },
+    {
+     "id": "file_write",
+     "label": "File Write",
+     "description": "Write file bytes to a paired node by absolute path. Atomic write (temp + rename). Refuses to overwrite by default;...",
+     "fullDescription": "Write file bytes to a paired node by absolute path. Atomic write (temp + rename). Refuses to overwrite by default; pass overwrite=true to replace. Refuses to write through symlink targets unless policy explicitly allows following symlinks. Pass contentBase64 for inline bytes, or sourceMediaId for a previously fetched file's mediaId in the file-transfer media store. Requires operator opt-in: gateway.nodes.commands.allow must include 'file.write', and file-transfer policy must authorize the path through allowWritePaths or a remembered exact approval. Without policy configured, every call is deni…<+3 chars>",
+     "parameters": [
+      {
+       "name": "node",
+       "required": true,
+       "type": "string",
+       "description": "Existing paired node id, display name, or IP shown by nodes status. Do not use local, host, gateway, or auto; use local file/exec tools for local workspace paths."
+      },
+      {
+       "name": "path",
+       "required": true,
+       "type": "string",
+       "description": "Absolute path on the node to write. Canonicalized server-side."
+      },
+      {
+       "name": "contentBase64",
+       "required": false,
+       "type": "string",
+       "description": "Base64-encoded bytes to write. Maximum 16 MB after decode."
+      },
+      {
+       "name": "sourceMediaId",
+       "required": false,
+       "type": "string",
+       "description": "mediaId of a previously fetched file in the file-transfer media store. Reuses saved bytes for binary copies. Not a local path or an ID from another media store."
+      },
+      {
+       "name": "mimeType",
+       "required": false,
+       "type": "string",
+       "description": "Content type hint. Not validated against the content."
+      },
+      {
+       "name": "overwrite",
+       "required": false,
+       "type": "boolean",
+       "description": "Allow overwriting an existing file. Default false."
+      },
+      {
+       "name": "createParents",
+       "required": false,
+       "type": "boolean",
+       "description": "Create missing parent directories (mkdir -p). Default false."
+      }
+     ],
+     "optional": false,
+     "source": "plugin",
+     "pluginId": "file-transfer",
+     "defaultProfiles": []
+    }
+   ]
+  },
+  {
+   "id": "plugin:memory-core",
+   "label": "memory-core",
+   "source": "plugin",
+   "pluginId": "memory-core",
+   "tools": [
+    {
+     "id": "intent",
+     "label": "Standing Intent",
+     "description": "Create, list, or explicitly cancel event-conditioned standing intents. A created intent is armed; the system injects...",
+     "fullDescription": "Create, list, or explicitly cancel event-conditioned standing intents. A created intent is armed; the system injects the reminder automatically when it triggers. Do not deliver it early or cancel it unless the user asks. Use scheduled tasks for time-based reminders.",
+     "parameters": [
+      {
+       "name": "action",
+       "required": true,
+       "type": "string"
+      },
+      {
+       "name": "id",
+       "required": false,
+       "type": "string"
+      },
+      {
+       "name": "description",
+       "required": false,
+       "type": "string"
+      },
+      {
+       "name": "triggerKeywords",
+       "required": false,
+       "type": "array"
+      },
+      {
+       "name": "scope",
+       "required": false,
+       "type": "string"
+      },
+      {
+       "name": "senderScope",
+       "required": false,
+       "type": "string"
+      },
+      {
+       "name": "expiresAt",
+       "required": false,
+       "type": "string"
+      },
+      {
+       "name": "maxFires",
+       "required": false,
+       "type": "integer"
+      },
+      {
+       "name": "cooldownSeconds",
+       "required": false,
+       "type": "integer"
+      },
+      {
+       "name": "status",
+       "required": false,
+       "type": "string"
+      }
+     ],
+     "optional": false,
+     "source": "plugin",
+     "pluginId": "memory-core",
+     "defaultProfiles": []
+    }
+   ]
+  },
+  {
+   "id": "plugin:ollama",
+   "label": "ollama",
+   "source": "plugin",
+   "pluginId": "ollama",
+   "tools": [
+    {
+     "id": "node_inference",
+     "label": "Node Inference",
+     "description": "Discover and run chat-capable Ollama models installed on paired desktop/server nodes. Use action=discover first,...",
+     "fullDescription": "Discover and run chat-capable Ollama models installed on paired desktop/server nodes. Use action=discover first, then action=run with a node and model from that result. Inference stays on the selected node.",
+     "parameters": [
+      {
+       "name": "action",
+       "required": true,
+       "type": "string"
+      },
+      {
+       "name": "node",
+       "required": false,
+       "type": "string",
+       "description": "Connected node id or display name. Required when ambiguous."
+      },
+      {
+       "name": "model",
+       "required": false,
+       "type": "string",
+       "description": "Exact local model name returned by discover."
+      },
+      {
+       "name": "prompt",
+       "required": false,
+       "type": "string",
+       "description": "Prompt for action=run."
+      },
+      {
+       "name": "system",
+       "required": false,
+       "type": "string",
+       "description": "Optional system prompt for action=run."
+      },
+      {
+       "name": "temperature",
+       "required": false,
+       "type": "number"
+      },
+      {
+       "name": "maxTokens",
+       "required": false,
+       "type": "integer"
+      },
+      {
+       "name": "timeoutMs",
+       "required": false,
+       "type": "integer"
+      }
+     ],
+     "optional": false,
+     "source": "plugin",
+     "pluginId": "ollama",
+     "defaultProfiles": []
+    }
+   ]
+  },
+  {
+   "id": "plugin:talk-voice",
+   "label": "talk-voice",
+   "source": "plugin",
+   "pluginId": "talk-voice",
+   "tools": [
+    {
+     "id": "talk_voice",
+     "label": "Talk Voice",
+     "description": "List or change the voice of the active realtime Talk call (browser, iOS, or Android) or Discord voice call in this...",
+     "fullDescription": "List or change the voice of the active realtime Talk call (browser, iOS, or Android) or Discord voice call in this conversation. Use list to see its provider, model, current voice, available voice IDs, and whether it can change. Use set with an available voice ID to reconnect the active call, preserving conversation and ongoing agent work. Success means the replacement call is ready. Saved voice defaults stay unchanged.",
+     "parameters": [
+      {
+       "name": "action",
+       "required": true,
+       "type": "string"
+      },
+      {
+       "name": "voice",
+       "required": false,
+       "type": "string",
+       "description": "Voice ID from list; required for set."
+      }
+     ],
+     "optional": false,
+     "source": "plugin",
+     "pluginId": "talk-voice",
+     "defaultProfiles": []
+    }
+   ]
+  }
+ ]
+}

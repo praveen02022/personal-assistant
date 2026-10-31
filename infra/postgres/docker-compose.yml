@@ -1,0 +1,23 @@
+# Local development database for PersonalOS (managed Postgres in production).
+name: personalos-postgres
+services:
+  postgres:
+    image: postgres:17.6-alpine
+    container_name: personalos-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: personalos
+      POSTGRES_PASSWORD: personalos_dev   # local-only dev credential
+      POSTGRES_DB: personalos
+    ports:
+      - "127.0.0.1:55433:5432"           # 55432 is used by another local Postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U personalos -d personalos"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+volumes:
+  pgdata:
+    name: personalos-pgdata

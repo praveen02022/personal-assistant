@@ -1,0 +1,19 @@
+{
+  "name": "personalos",
+  "private": true,
+  "packageManager": "pnpm@10.28.1",
+  "engines": { "node": ">=22.19.0" },
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "db:up": "docker compose -f infra/postgres/docker-compose.yml up -d",
+    "gateway:up": "docker compose -f infra/openclaw/docker-compose.yml up -d"
+  },
+  "devDependencies": {
+    "turbo": "2.11.10",
+    "typescript": "6.0.3"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "@personalos/spike-gateway",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22.19.0" },
+  "scripts": { "spike": "node --experimental-strip-types spike.ts" },
+  "dependencies": {
+    "@openclaw/gateway-client": "2026.10.9",
+    "@openclaw/gateway-protocol": "2026.10.9"
+  }
+}

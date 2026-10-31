@@ -1,0 +1,354 @@
+[
+ {
+  "step": "voices",
+  "ms": 2525,
+  "total": 974,
+  "ta-IN": [
+   "ta-IN-PallaviNeural (Female)",
+   "ta-IN-ValluvarNeural (Male)"
+  ],
+  "en-IN": [
+   "en-IN-Diya:DragonHDLatestNeural (Female, NeuralHD)",
+   "en-IN-Lavanya:DragonHDLatestNeural (Female, NeuralHD)",
+   "en-IN-Meera:DragonHDLatestNeural (Female, NeuralHD)",
+   "en-IN-Aarti:DragonHDLatestNeural (Female, NeuralHD)",
+   "en-IN-Arjun:DragonHDLatestNeural (Male, NeuralHD)",
+   "en-IN-Neerja:DragonHDLatestNeural (Female, NeuralHD)",
+   "en-IN-AartiIndicNeural (Female)",
+   "en-IN-ArjunIndicNeural (Male)",
+   "en-IN-NeerjaIndicNeural (Female)",
+   "en-IN-PrabhatIndicNeural (Male)",
+   "en-IN-AaravNeural (Male)",
+   "en-IN-AashiNeural (Female)",
+   "en-IN-AartiNeural (Female)",
+   "en-IN-ArjunNeural (Male)",
+   "en-IN-AnanyaNeural (Female)",
+   "en-IN-KavyaNeural (Female)",
+   "en-IN-KunalNeural (Male)",
+   "en-IN-NeerjaNeural (Female)",
+   "en-IN-PrabhatNeural (Male)",
+   "en-IN-RehaanNeural (Male)",
+   "en-IN-Dhruv:MAI-Voice-2.1-Flash (Male)",
+   "en-IN-Priya:MAI-Voice-2.1-Flash (Female)",
+   "en-IN-Dhruv:MAI-Voice-2.1 (Male, NeuralHD)",
+   "en-IN-Priya:MAI-Voice-2.1 (Female, NeuralHD)"
+  ]
+ },
+ {
+  "step": "tts",
+  "sample": "en",
+  "format": "webm",
+  "status": 200,
+  "bytes": 45119,
+  "ttfbMs": 856,
+  "totalMs": 1334
+ },
+ {
+  "step": "tts",
+  "sample": "en",
+  "format": "ogg",
+  "status": 200,
+  "bytes": 57333,
+  "ttfbMs": 326,
+  "totalMs": 662
+ },
+ {
+  "step": "tts",
+  "sample": "en",
+  "format": "wav",
+  "status": 200,
+  "bytes": 225644,
+  "ttfbMs": 533,
+  "totalMs": 1010
+ },
+ {
+  "step": "tts",
+  "sample": "en",
+  "format": "mp3",
+  "status": 200,
+  "bytes": 42624,
+  "ttfbMs": 324,
+  "totalMs": 618
+ },
+ {
+  "step": "tts",
+  "sample": "ta",
+  "format": "webm",
+  "status": 200,
+  "bytes": 30152,
+  "ttfbMs": 351,
+  "totalMs": 646
+ },
+ {
+  "step": "tts",
+  "sample": "ta",
+  "format": "ogg",
+  "status": 200,
+  "bytes": 38227,
+  "ttfbMs": 360,
+  "totalMs": 673
+ },
+ {
+  "step": "tts",
+  "sample": "ta",
+  "format": "wav",
+  "status": 200,
+  "bytes": 149644,
+  "ttfbMs": 618,
+  "totalMs": 1096
+ },
+ {
+  "step": "tts",
+  "sample": "ta",
+  "format": "mp3",
+  "status": 200,
+  "bytes": 28368,
+  "ttfbMs": 289,
+  "totalMs": 614
+ },
+ {
+  "step": "tts",
+  "sample": "tanglish",
+  "format": "webm",
+  "status": 200,
+  "bytes": 34456,
+  "ttfbMs": 365,
+  "totalMs": 651
+ },
+ {
+  "step": "tts",
+  "sample": "tanglish",
+  "format": "ogg",
+  "status": 200,
+  "bytes": 43728,
+  "ttfbMs": 303,
+  "totalMs": 807
+ },
+ {
+  "step": "tts",
+  "sample": "tanglish",
+  "format": "wav",
+  "status": 200,
+  "bytes": 171644,
+  "ttfbMs": 457,
+  "totalMs": 937
+ },
+ {
+  "step": "tts",
+  "sample": "tanglish",
+  "format": "mp3",
+  "status": 200,
+  "bytes": 32544,
+  "ttfbMs": 293,
+  "totalMs": 617
+ },
+ {
+  "step": "stt.fast",
+  "sample": "en",
+  "format": "webm",
+  "locales": [
+   "en-IN"
+  ],
+  "status": 200,
+  "ms": 1962,
+  "text": "Good morning. What is on my schedule today and do I have any meetings after lunch?",
+  "confidence": 0.97131747,
+  "locale": "en-IN",
+  "audioMs": 7050,
+  "error": null
+ },
+ {
+  "step": "stt.fast",
+  "sample": "en",
+  "format": "ogg",
+  "locales": [
+   "en-IN"
+  ],
+  "status": 200,
+  "ms": 2011,
+  "text": "Good morning. What is on my schedule today and do I have any meetings after lunch?",
+  "confidence": 0.9707378,
+  "locale": "en-IN",
+  "audioMs": 7050,
+  "error": null
+ },
+ {
+  "step": "stt.fast",
+  "sample": "en",
+  "format": "wav",
+  "locales": [
+   "en-IN"
+  ],
+  "status": 200,
+  "ms": 1092,
+  "text": "Good morning. What is on my schedule today and do I have any meetings after lunch?",
+  "confidence": 0.96802044,
+  "locale": "en-IN",
+  "audioMs": 7050,
+  "error": null
+ },
+ {
+  "step": "stt.fast",
+  "sample": "ta",
+  "format": "webm",
+  "locales": [
+   "ta-IN"
+  ],
+  "status": 200,
+  "ms": 519,
+  "text": "காலை வணக்கம். இன்று என் அட்டவணையில் என்ன இருக்கிறது?",
+  "confidence": 0.8666623,
+  "locale": "ta-IN",
+  "audioMs": 4675,
+  "error": null
+ },
+ {
+  "step": "stt.fast",
+  "sample": "ta",
+  "format": "ogg",
+  "locales": [
+   "ta-IN"
+  ],
+  "status": 200,
+  "ms": 457,
+  "text": "காலை வணக்கம். இன்று என் அட்டவணையில் என்ன இருக்கிறது?",
+  "confidence": 0.8694991,
+  "locale": "ta-IN",
+  "audioMs": 4675,
+  "error": null
+ },
+ {
+  "step": "stt.fast",
+  "sample": "ta",
+  "format": "wav",
+  "locales": [
+   "ta-IN"
+  ],
+  "status": 200,
+  "ms": 766,
+  "text": "காலை வணக்கம். இன்று என் அட்டவணையில் என்ன இருக்கிறது?",
+  "confidence": 0.8771289,
+  "locale": "ta-IN",
+  "audioMs": 4675,
+  "error": null
+ },
+ {
+  "step": "stt.fast",
+  "sample": "tanglish",
+  "format": "webm",
+  "locales": [
+   "en-IN"
+  ],
+  "status": 200,
+  "ms": 510,
+  "text": "Nalakku manager kood meeting schedule pannu, morning 10:00 o'clock.",
+  "confidence": 0.65322644,
+  "locale": "en-IN",
+  "audioMs": 5362,
+  "error": null
+ },
+ {
+  "step": "stt.fast",
+  "sample": "tanglish",
+  "format": "ogg",
+  "locales": [
+   "en-IN"
+  ],
+  "status": 200,
+  "ms": 757,
+  "text": "nalakku manager kood meeting schedule pannu, morning 10:00 o'clock.",
+  "confidence": 0.704978,
+  "locale": "en-IN",
+  "audioMs": 5362,
+  "error": null
+ },
+ {
+  "step": "stt.fast",
+  "sample": "tanglish",
+  "format": "wav",
+  "locales": [
+   "en-IN"
+  ],
+  "status": 200,
+  "ms": 518,
+  "text": "nalakku manager kood meeting schedule pannu, morning 10:00 o'clock.",
+  "confidence": 0.7490512,
+  "locale": "en-IN",
+  "audioMs": 5362,
+  "error": null
+ },
+ {
+  "step": "stt.fast",
+  "sample": "ta",
+  "format": "webm",
+  "locales": "none (auto)",
+  "status": 200,
+  "ms": 532,
+  "text": "Kaalai vanakkam, injoy yen atta vanail yenna irikaradhar.",
+  "confidence": 0.27941614,
+  "locale": "en-US",
+  "audioMs": 4675,
+  "error": null
+ },
+ {
+  "step": "stt.fast",
+  "sample": "ta",
+  "format": "webm",
+  "locales": [
+   "en-IN",
+   "ta-IN"
+  ],
+  "status": 200,
+  "ms": 465,
+  "text": "காலை வணக்கம். இன்று என் அட்டவணையில் என்ன இருக்கிறது?",
+  "confidence": 0.8119795,
+  "locale": "ta-IN",
+  "audioMs": 4675,
+  "error": null
+ },
+ {
+  "step": "stt.fast",
+  "sample": "tanglish",
+  "format": "webm",
+  "locales": [
+   "ta-IN"
+  ],
+  "status": 429,
+  "ms": 285,
+  "text": null,
+  "confidence": null,
+  "locale": null,
+  "audioMs": null,
+  "error": "{\"error\":{\"code\":\"429\",\"message\":\"Requests to the Transcribe Operation under Speech Services API version 2025-10-15 have exceeded call rate limit of your current SpeechServices F0 pricing tier. Please retry after 39 seco"
+ },
+ {
+  "step": "stt.short",
+  "sample": "en",
+  "format": "webm",
+  "status": 401,
+  "ms": 4019,
+  "recognition": null,
+  "text": null,
+  "error": ""
+ },
+ {
+  "step": "stt.short",
+  "sample": "en",
+  "format": "ogg",
+  "status": 401,
+  "ms": 4063,
+  "recognition": null,
+  "text": null,
+  "error": ""
+ },
+ {
+  "step": "stt.short",
+  "sample": "en",
+  "format": "wav",
+  "status": 401,
+  "ms": 4081,
+  "recognition": null,
+  "text": null,
+  "error": ""
+ }
+]

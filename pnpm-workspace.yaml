@@ -1,0 +1,13 @@
+packages:
+  - apps/*
+  - packages/*
+  # spikes/* are deliberately excluded (standalone, own lockfile)
+onlyBuiltDependencies:
+  - "@prisma/engines"
+  - "@swc/core"
+  - argon2
+  - esbuild
+  - prisma
+  - sharp
+ignoredBuiltDependencies:
+  - unrs-resolver # prebuilt binaries; postinstall not needed

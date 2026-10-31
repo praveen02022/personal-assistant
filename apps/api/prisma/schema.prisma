@@ -1,0 +1,128 @@
+// PersonalOS application schema (Phase 1).
+// OpenClaw owns transcripts and agent state; this database owns users, auth sessions,
+// conversation references, task lifecycle, and audit metadata. No message bodies here.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+  importFileExtension = "js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String   @id @default(uuid(7)) @db.Uuid
+  email        String   @unique
+  displayName  String
+  passwordHash String // argon2id (PHC string: algorithm, params, salt, hash)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  preference    UserPreference?
+  authSessions  AuthSession[]
+  conversations Conversation[]
+  tasks         AppTask[]
+  auditLogs     AuditLog[]
+}
+
+/// Server-side session. The cookie holds an opaque random token; only its SHA-256 is stored.
+model AuthSession {
+  id         String   @id @default(uuid(7)) @db.Uuid
+  userId     String   @db.Uuid
+  tokenHash  String   @unique
+  expiresAt  DateTime
+  lastSeenAt DateTime @default(now())
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model UserPreference {
+  userId        String   @id @db.Uuid
+  language      String   @default("en-IN")
+  timezone      String   @default("Asia/Kolkata")
+  assistantName String   @default("Assistant")
+  configuration Json     @default("{}")
+  updatedAt     DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+/// Reference to an OpenClaw session. The transcript lives in OpenClaw (chat.history).
+model Conversation {
+  id                 String    @id @default(uuid(7)) @db.Uuid
+  userId             String    @db.Uuid
+  /// Server-generated: agent:personalos:personalos:<conversationId>. Never client-supplied.
+  openClawSessionKey String    @unique
+  title              String?
+  lastMessageAt      DateTime?
+  archivedAt         DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  user  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tasks AppTask[]
+
+  @@index([userId, lastMessageAt(sort: Desc)])
+}
+
+enum TaskStatus {
+  QUEUED
+  RUNNING
+  SUCCEEDED
+  FAILED
+  CANCELLED
+  TIMED_OUT
+}
+
+/// One user request and its agent run(s). id doubles as the OpenClaw idempotencyKey.
+model AppTask {
+  id              String     @id @default(uuid(7)) @db.Uuid
+  userId          String     @db.Uuid
+  conversationId  String     @db.Uuid
+  /// Client-generated id; (userId, clientRequestId) dedupes double submits.
+  clientRequestId String     @db.Uuid
+  /// First OpenClaw runId. Restart recovery can add more (see runIds).
+  openClawRunId   String?    @unique
+  /// Every runId that has served this task, including restart-recovery runs.
+  runIds          String[]   @default([])
+  taskType        String     @default("chat")
+  status          TaskStatus @default(QUEUED)
+  errorCode       String?
+  cancelRequested Boolean    @default(false)
+  metadata        Json       @default("{}")
+  lastEventAt     DateTime?
+  createdAt       DateTime   @default(now())
+  startedAt       DateTime?
+  completedAt     DateTime?
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, clientRequestId])
+  @@index([conversationId, createdAt])
+  @@index([status, createdAt])
+}
+
+/// Metadata-only audit trail: never prompts, tokens, or tool payloads.
+model AuditLog {
+  id            String   @id @default(uuid(7)) @db.Uuid
+  userId        String?  @db.Uuid
+  action        String
+  resourceType  String
+  resourceId    String?
+  correlationId String?
+  metadata      Json     @default("{}")
+  createdAt     DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@index([correlationId])
+}

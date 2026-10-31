@@ -1,0 +1,85 @@
+@import "tailwindcss";
+
+/* PersonalOS — warm, calm, minimal. Tokens first; components use semantic names only. */
+:root {
+  --bg: #faf7f2;
+  --surface: #ffffff;
+  --surface-2: #f3eee6;
+  --ink: #1f1b16;
+  --ink-2: #5c544a;
+  --ink-3: #8a8177;
+  --line: #e8e1d6;
+  --accent: #c2562b; /* terracotta */
+  --accent-ink: #ffffff;
+  --accent-soft: #f6e3d8;
+  --ok: #3f7d58;
+  --warn: #b7791f;
+  --danger: #b4423a;
+  --focus: #c2562b;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #15120f;
+    --surface: #1d1915;
+    --surface-2: #26211c;
+    --ink: #f2ece4;
+    --ink-2: #c4bbb0;
+    --ink-3: #8f867b;
+    --line: #322b24;
+    --accent: #e07a4c;
+    --accent-ink: #1a120c;
+    --accent-soft: #3a2519;
+    --ok: #6fb38a;
+    --warn: #e0a84a;
+    --danger: #e0766d;
+    --focus: #e07a4c;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+  --color-ok: var(--ok);
+  --color-warn: var(--warn);
+  --color-danger: var(--danger);
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-fraunces);
+}
+
+/* Base rules live in a cascade layer so utilities (e.g. focus-visible:outline-none) can override them. */
+@layer base {
+  html {
+    color-scheme: light dark;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}

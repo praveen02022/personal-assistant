@@ -1,0 +1,26 @@
+# PersonalOS-dedicated OpenClaw Gateway.
+# Isolated from the host's personal Gateway (~/.openclaw, port 18789):
+#   - own named state volume, own token (.env), own agent ("personalos")
+#   - image pinned by multi-arch index digest, never a moving tag
+name: personalos-openclaw
+
+services:
+  openclaw-gateway:
+    # ghcr.io/openclaw/openclaw:2026.10.9 (revision 8b18b5578f66eab1501cba4cef2310d88bfb9a41)
+    image: ghcr.io/openclaw/openclaw@sha256:1a2a3ce113e435039dbeac5ae261759bb4759908563d91c81059e896b38c5d98
+    container_name: personalos-openclaw-gateway
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      OPENCLAW_STATE_DIR: /home/node/.openclaw
+      TZ: Asia/Kolkata
+    volumes:
+      - openclaw-state:/home/node/.openclaw
+    ports:
+      # Published on host loopback only. Inside the container the Gateway binds "lan"
+      # so Docker's port forward can reach it; nothing outside this host can.
+      - "127.0.0.1:18790:18789"
+
+volumes:
+  openclaw-state:
+    name: personalos-openclaw-state
