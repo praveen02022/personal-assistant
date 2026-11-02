@@ -13,9 +13,12 @@ import { HealthController } from "./health/health.controller.js";
 import { TaskStreamRegistry } from "./tasks/task-stream.registry.js";
 import { TasksController } from "./tasks/tasks.controller.js";
 import { TasksService } from "./tasks/tasks.service.js";
+import { IntegrationsModule } from "./integrations/integrations.module.js";
+import { VoiceModule } from "./voice/voice.module.js";
+import { DemoModule } from "./demo/demo.module.js";
 
 @Module({
-  imports: [CoreModule, GatewayModule, ThrottlerModule.forRoot([{ ttl: 60_000, limit: 300 }])],
+  imports: [CoreModule, GatewayModule, VoiceModule, IntegrationsModule, DemoModule, ThrottlerModule.forRoot([{ ttl: 60_000, limit: 300 }])],
   controllers: [AuthController, ConversationsController, TasksController, HealthController],
   providers: [
     AuthService,

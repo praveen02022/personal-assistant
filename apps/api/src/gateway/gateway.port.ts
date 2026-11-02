@@ -1,5 +1,35 @@
-import type { GatewayState, ProgressPhase } from "@personalos/contracts";
+import { HttpStatus } from "@nestjs/common";
+import { ErrorCodes, type GatewayState, type ProgressPhase } from "@personalos/contracts";
 import type { Observable } from "rxjs";
+import { AppError } from "../common/errors.js";
+
+/**
+ * Delivery outcome matters for side effects. These all render as 503 GATEWAY_UNAVAILABLE to
+ * clients, but callers that create work (chat.send) must treat them differently:
+ *  - GatewayNotSentError: the request never left this process. Safe to mark the task failed.
+ *  - GatewayAckUnknownError: the request may have been accepted; only the reply was lost.
+ *    Do NOT assume failure: reconcile with the runtime (runId === idempotencyKey).
+ */
+export class GatewayNotSentError extends AppError {
+  constructor(readonly reason: string) {
+    super(ErrorCodes.GATEWAY_UNAVAILABLE, HttpStatus.SERVICE_UNAVAILABLE, "The assistant runtime is unavailable. Try again shortly.", { retryable: true });
+  }
+}
+export class GatewayAckUnknownError extends AppError {
+  constructor(readonly method: string) {
+    super(ErrorCodes.GATEWAY_UNAVAILABLE, HttpStatus.SERVICE_UNAVAILABLE, "The assistant runtime didn't confirm the request.", { retryable: true });
+  }
+}
+/** The Gateway answered and rejected the request (definitive). */
+export class GatewayRpcError extends Error {
+  constructor(
+    readonly method: string,
+    readonly gatewayCode: string | null,
+    message: string,
+  ) {
+    super(`${method}: ${message}`);
+  }
+}
 
 /**
  * Normalised agent-run events. OpenClaw wire shapes stop at the gateway module;

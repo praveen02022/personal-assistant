@@ -16,6 +16,10 @@ services:
       TZ: Asia/Kolkata
     volumes:
       - openclaw-state:/home/node/.openclaw
+      # stdio->HTTP bridge to the PersonalOS MCP server (read-only mount; launched by OpenClaw)
+      - ./mcp-bridge:/opt/personalos/mcp-bridge:ro
+      # Agent token for PersonalOS tools; config references only this path (see mcp-bridge)
+      - ./secrets/personalos-mcp-token:/run/secrets/personalos-mcp-token:ro
     ports:
       # Published on host loopback only. Inside the container the Gateway binds "lan"
       # so Docker's port forward can reach it; nothing outside this host can.

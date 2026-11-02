@@ -3,8 +3,8 @@
 // conversation references, task lifecycle, and audit metadata. No message bodies here.
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider            = "prisma-client"
+  output              = "../src/generated/prisma"
   importFileExtension = "js"
 }
 
@@ -20,11 +20,15 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  preference    UserPreference?
-  authSessions  AuthSession[]
-  conversations Conversation[]
-  tasks         AppTask[]
-  auditLogs     AuditLog[]
+  preference      UserPreference?
+  voicePreference VoicePreference?
+  integrations    IntegrationConnection[]
+  oauthStates     OAuthState[]
+  agentTokens     AgentAccessToken[]
+  authSessions    AuthSession[]
+  conversations   Conversation[]
+  tasks           AppTask[]
+  auditLogs       AuditLog[]
 }
 
 /// Server-side session. The cookie holds an opaque random token; only its SHA-256 is stored.
@@ -52,6 +56,98 @@ model UserPreference {
   updatedAt     DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+/// Voice settings. Provider ids select an implementation behind the provider-neutral interfaces.
+model VoicePreference {
+  userId      String   @id @db.Uuid
+  /// "auto" = choose between en-IN and ta-IN; or a fixed locale.
+  language    String   @default("auto")
+  sttProvider String   @default("azure")
+  ttsProvider String   @default("azure")
+  voiceEn     String   @default("en-IN-NeerjaNeural")
+  voiceTa     String   @default("ta-IN-PallaviNeural")
+  speechRate  Float    @default(1.0)
+  /// Speak the answer automatically when the turn started by voice.
+  autoSpeak   Boolean  @default(true)
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum IntegrationStatus {
+  CONNECTED
+  NEEDS_RECONNECT
+}
+
+/// A user's link to an external account. Never holds secrets: see credentialId.
+model IntegrationConnection {
+  id            String            @id @default(uuid(7)) @db.Uuid
+  userId        String            @db.Uuid
+  /// e.g. "microsoft-calendar"
+  provider      String
+  status        IntegrationStatus
+  /// Account the user signed in with (shown in the UI).
+  accountEmail  String?
+  /// Scopes the provider actually granted (verified at connect time).
+  grantedScopes String[]
+  /// Encrypted credential record (refresh token). Unique: one credential per connection.
+  credentialId  String            @unique @db.Uuid
+  lastUsedAt    DateTime?
+  lastError     String?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  user       User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  credential IntegrationCredential @relation(fields: [credentialId], references: [id])
+
+  @@unique([userId, provider])
+}
+
+/// AES-256-GCM ciphertext of provider tokens. Kept apart so ordinary queries never load it;
+/// keyVersion allows key rotation (or moving to a KMS-backed store) without schema changes.
+model IntegrationCredential {
+  id         String   @id @default(uuid(7)) @db.Uuid
+  keyVersion Int
+  iv         Bytes
+  authTag    Bytes
+  ciphertext Bytes
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  connection IntegrationConnection?
+}
+
+/// One-time OAuth state (CSRF + PKCE). Consumed atomically by the callback; expires in minutes.
+model OAuthState {
+  stateHash             String   @id
+  userId                String   @db.Uuid
+  provider              String
+  /// PKCE code_verifier, encrypted with the credential vault.
+  codeVerifierEncrypted String
+  expiresAt             DateTime
+  createdAt             DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([expiresAt])
+}
+
+/// Credential an agent runtime (one OpenClaw Gateway) uses to call PersonalOS tools.
+/// Only the SHA-256 is stored; scopes bound what it can call; revocable.
+model AgentAccessToken {
+  id         String    @id @default(uuid(7)) @db.Uuid
+  userId     String    @db.Uuid
+  name       String
+  tokenHash  String    @unique
+  scopes     String[]
+  createdAt  DateTime  @default(now())
+  lastUsedAt DateTime?
+  revokedAt  DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 /// Reference to an OpenClaw session. The transcript lives in OpenClaw (chat.history).

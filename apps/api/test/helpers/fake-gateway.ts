@@ -1,6 +1,14 @@
 import type { GatewayState } from "@personalos/contracts";
 import { BehaviorSubject, Subject } from "rxjs";
-import { AgentGateway, type RunEvent, type RunWaitResult, type SessionHistory } from "../../src/gateway/gateway.port.js";
+import {
+  AgentGateway,
+  GatewayAckUnknownError,
+  GatewayNotSentError,
+  GatewayRpcError,
+  type RunEvent,
+  type RunWaitResult,
+  type SessionHistory,
+} from "../../src/gateway/gateway.port.js";
 
 type Script = (ctx: { runId: string; sessionKey: string; message: string; emit: (e: RunEvent) => void }) => void;
 
@@ -18,6 +26,11 @@ export class FakeGateway extends AgentGateway {
   /** Per-session transcripts, like the real chat.history. Default: idle, empty. */
   historyBySession = new Map<string, SessionHistory>();
   waitResult: RunWaitResult = { status: "timeout", stopReason: null, error: null };
+  /**
+   * Next chat.send outcome: "ack-lost" = the run starts but the reply is lost (timeout after
+   * the frame was written); "not-sent" = it never reached the Gateway.
+   */
+  sendFailure: "ack-lost" | "not-sent" | null = null;
   private activeRuns = new Map<string, string>(); // runId -> sessionKey
 
   currentState() {
@@ -29,12 +42,21 @@ export class FakeGateway extends AgentGateway {
     this.events$.next(e);
   }
 
-  async ensureSession(sessionKey: string) {
+  /** Mirrors OpenClaw: session labels must be unique across sessions ("label already in use"). */
+  private labels = new Map<string, string>();
+  async ensureSession(sessionKey: string, title: string) {
+    const label = `personalos ${sessionKey.split(":").at(-1)}`; // what the real adapter sends
+    const owner = this.labels.get(label);
+    if (owner && owner !== sessionKey) throw new GatewayRpcError("sessions.create", "INVALID_REQUEST", `label already in use: ${title}`);
+    this.labels.set(label, sessionKey);
     this.sessions.add(sessionKey);
   }
 
   async sendMessage(p: { sessionKey: string; message: string; idempotencyKey: string }) {
-    if (this.state$.value !== "connected") throw new Error("not connected");
+    if (this.state$.value !== "connected") throw new GatewayNotSentError("not connected");
+    const failure = this.sendFailure;
+    this.sendFailure = null;
+    if (failure === "not-sent") throw new GatewayNotSentError("simulated");
     const dup = this.sent.find((s) => s.idempotencyKey === p.idempotencyKey);
     this.sent.push(p);
     if (dup) return { runId: p.idempotencyKey, status: "in_flight" };
@@ -42,6 +64,7 @@ export class FakeGateway extends AgentGateway {
     this.activeRuns.set(runId, p.sessionKey);
     // Events arrive asynchronously, like the real Gateway (sometimes before chat.send resolves).
     setImmediate(() => this.script({ runId, sessionKey: p.sessionKey, message: p.message, emit: (e) => this.emit(e) }));
+    if (failure === "ack-lost") throw new GatewayAckUnknownError("chat.send");
     return { runId, status: "started" };
   }
 

@@ -255,6 +255,12 @@ async function main() {
       }
     }
 
+    if (scenario === "effective") {
+      const eff = await call<any>(client, "tools.effective", { sessionKey: args[0], agentId: AGENT_ID });
+      for (const t of eff.toolAccess.tools) if (t.status !== "excluded") console.log("EFFECTIVE", t.id, t.status);
+      console.log("NOTICES", JSON.stringify(eff.notices ?? []).slice(0, 200));
+    }
+
     if (scenario === "describe") {
       const [conv = "c1"] = args;
       const d = await call<any>(client, "sessions.describe", { key: sessionKeyFor(conv), agentId: AGENT_ID });

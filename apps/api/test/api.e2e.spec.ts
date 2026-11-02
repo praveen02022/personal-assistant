@@ -7,6 +7,7 @@ import request from "supertest";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { TEST_DATABASE_URL } from "./global-setup.js";
 import { FakeGateway } from "./helpers/fake-gateway.js";
+import { resetTestDatabase } from "./helpers/reset-db.js";
 
 const ORIGIN = "http://localhost:3000";
 Object.assign(process.env, {
@@ -69,7 +70,7 @@ describe("PersonalOS API (real HTTP pipeline + Postgres, fake gateway)", () => {
     app = configureApp(moduleRef.createNestApplication({ bodyParser: false }));
     await app.init();
     prisma = app.get(PrismaService);
-    await prisma.$executeRawUnsafe('TRUNCATE "AuditLog", "AppTask", "Conversation", "AuthSession", "UserPreference", "User" CASCADE');
+    await resetTestDatabase(prisma);
     await prisma.user.create({ data: { email: "owner@example.com", displayName: "Owner", passwordHash: await hashPassword("correct horse battery"), preference: { create: {} } } });
     // Every test can run in isolation (vitest -t): log in here rather than relying on test order.
     const login = await http().post("/api/auth/login").set("Origin", ORIGIN).send({ email: "owner@example.com", password: "correct horse battery" });
@@ -87,7 +88,7 @@ describe("PersonalOS API (real HTTP pipeline + Postgres, fake gateway)", () => {
 
   describe("auth", () => {
     it("health is public; everything else needs a session", async () => {
-      expect((await http().get("/api/health")).body).toEqual({ db: "ok", gateway: "connected" });
+      expect((await http().get("/api/health")).body).toMatchObject({ db: "ok", gateway: "connected" });
       const res = await http().get("/api/conversations");
       expect(res.status).toBe(401);
       expect(res.body.error.code).toBe("UNAUTHENTICATED");
@@ -104,6 +105,23 @@ describe("PersonalOS API (real HTTP pipeline + Postgres, fake gateway)", () => {
       const res = await http().post("/api/auth/login").set("Origin", "https://evil.example").send({ email: "owner@example.com", password: "correct horse battery" });
       expect(res.status).toBe(403);
       expect(res.body.error.code).toBe("FORBIDDEN_ORIGIN");
+    });
+
+    it("accepts the loopback aliases of a localhost WEB_ORIGIN, and nothing else (login via http://127.0.0.1:3000)", async () => {
+      // Origin is checked before authentication (and this route has no login rate limit): 401 = origin accepted.
+      const login = (origin: string) => http().post("/api/conversations").set("Origin", origin).send({});
+      for (const origin of ["http://127.0.0.1:3000", "http://[::1]:3000"]) expect((await login(origin)).status).toBe(401);
+      for (const origin of ["http://127.0.0.1:3001", "https://127.0.0.1:3000", "http://localhost.evil.example:3000", "http://192.168.1.5:3000"]) {
+        expect((await login(origin)).status).toBe(403);
+      }
+    });
+
+    it("clears a stale session cookie on 401 so the login page can recover (review finding)", async () => {
+      const res = await http().get("/api/auth/me").set("Cookie", "pos_session=" + "x".repeat(43));
+      expect(res.status).toBe(401);
+      expect(String(res.headers["set-cookie"])).toMatch(/pos_session=;.*Expires=Thu, 01 Jan 1970/);
+      const none = await http().get("/api/auth/me");
+      expect(none.headers["set-cookie"]).toBeUndefined(); // no cookie, nothing to clear
     });
 
     it("logs in with an httpOnly SameSite=Lax session cookie", async () => {
@@ -142,6 +160,13 @@ describe("PersonalOS API (real HTTP pipeline + Postgres, fake gateway)", () => {
       const conv = await prisma.conversation.findUniqueOrThrow({ where: { id: conversationId } });
       expect(conv.title).toBe("What's on example.com?");
       expect(gateway.sent.at(-1)).toMatchObject({ sessionKey: `agent:personalos:conv:${conversationId}`, idempotencyKey: task.id });
+    });
+
+    it("two conversations starting with the same words both work (OpenClaw labels must be unique)", async () => {
+      const a = await send(await newConversation(), "Good morning. What is on my schedule today?");
+      const b = await send(await newConversation(), "Good morning. What is on my schedule today?");
+      expect([a.status, b.status]).toEqual([202, 202]);
+      expect((await streamTask(b.body.taskId)).at(-1)?.data).toEqual({ type: "task.status", status: "SUCCEEDED" });
     });
 
     it("resumes an SSE stream from Last-Event-ID without replaying seen events", async () => {
@@ -205,6 +230,49 @@ describe("PersonalOS API (real HTTP pipeline + Postgres, fake gateway)", () => {
       const events = await streamTask(taskId);
       expect(events.find((e) => e.data.type === "task.error")?.data).toMatchObject({ code: "RUN_TIMEOUT", retryable: true });
       expect(events.at(-1)?.data).toEqual({ type: "task.status", status: "TIMED_OUT" });
+    });
+  });
+
+  describe("delivery uncertainty (review finding: lost send acknowledgment)", () => {
+    it("does not fail a task whose chat.send reply was lost; the run's real outcome wins", async () => {
+      gateway.sendFailure = "ack-lost"; // run starts in the runtime, reply never arrives
+      const conversationId = await newConversation();
+      const res = await send(conversationId, "survive a lost ack");
+      expect(res.status).toBe(202);
+      expect(res.body).toMatchObject({ status: "QUEUED", deduplicated: false });
+      const events = await streamTask(res.body.taskId);
+      expect(events.at(-1)?.data).toEqual({ type: "task.status", status: "SUCCEEDED" });
+      expect(events.map((e) => e.data)).toContainEqual({ type: "assistant.final", text: "Hello from the fake runtime." });
+    });
+
+    it("settles an ack-lost task as INTERRUPTED when the runtime never ran it", async () => {
+      gateway.sendFailure = "ack-lost";
+      gateway.script = () => undefined; // nothing actually ran
+      const conversationId = await newConversation();
+      const { taskId } = (await send(conversationId, "lost for real")).body;
+      gateway.waitResult = { status: "timeout", stopReason: null, error: null };
+      await app.get(TasksService).reconcileById(taskId, "test");
+      const task = await prisma.appTask.findUniqueOrThrow({ where: { id: taskId } });
+      expect(task).toMatchObject({ status: "FAILED", errorCode: "INTERRUPTED" });
+    });
+
+    it("fails fast (503) only when the message definitely never left the API", async () => {
+      gateway.sendFailure = "not-sent";
+      const conversationId = await newConversation();
+      const res = await send(conversationId, "never sent");
+      expect(res.status).toBe(503);
+      const task = await prisma.appTask.findFirstOrThrow({ where: { conversationId } });
+      expect(task).toMatchObject({ status: "FAILED", errorCode: "GATEWAY_SEND_FAILED" });
+    });
+
+    it("a resend with the same clientRequestId after a lost HTTP response returns the same task", async () => {
+      const conversationId = await newConversation();
+      const clientRequestId = randomUUID();
+      const first = await send(conversationId, "network blip", clientRequestId);
+      const again = await send(conversationId, "network blip", clientRequestId); // browser never saw `first`
+      expect(again.body).toMatchObject({ taskId: first.body.taskId, deduplicated: true });
+      await streamTask(first.body.taskId);
+      expect(await prisma.appTask.count({ where: { conversationId } })).toBe(1);
     });
   });
 

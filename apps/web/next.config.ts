@@ -9,6 +9,14 @@ const nextConfig: NextConfig = {
   partialPrefetching: true,
   poweredByHeader: false,
   transpilePackages: ["@personalos/contracts"],
+  // Old addresses keep working. /settings/integrations is also where Microsoft sign-in returns
+  // (the API redirects there with ?result=..., which is passed through).
+  async redirects() {
+    return [
+      { source: "/settings/integrations", destination: "/connections", permanent: false },
+      { source: "/settings/voice", destination: "/settings", permanent: false },
+    ];
+  },
   async rewrites() {
     return [{ source: "/api/:path*", destination: `${API_ORIGIN}/api/:path*` }];
   },

@@ -1,14 +1,25 @@
 import {
   ApiError,
   type ChatMessage,
+  type ConnectIntegrationResponse,
+  type IntegrationList,
   type ConversationList,
   type ConversationSummary,
+  type DemoAction,
+  type DemoTurnRequest,
+  type DemoTurnResponse,
+  type DemoWorkspace,
   type Health,
   type LoginRequest,
   type Me,
   type SendMessageRequest,
   type SendMessageResponse,
   type TaskSummary,
+  type TranscriptionResponse,
+  type UpdateVoicePreferences,
+  type VoiceLanguage,
+  type VoicePreferences,
+  type VoiceSettings,
 } from "@personalos/contracts";
 
 export const UNAUTHENTICATED_EVENT = "personalos:unauthenticated";
@@ -30,7 +41,8 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   const res = await fetch(`/api${path}`, {
     ...init,
     credentials: "same-origin",
-    headers: init.body ? { "Content-Type": "application/json", ...init.headers } : init.headers,
+    // JSON bodies get a JSON content type; FormData sets its own multipart boundary.
+    headers: typeof init.body === "string" ? { "Content-Type": "application/json", ...init.headers } : init.headers,
   });
   if (res.status === 401 && typeof window !== "undefined") {
     window.dispatchEvent(new Event(UNAUTHENTICATED_EVENT)); // session expired or revoked; the shell navigates
@@ -58,4 +70,24 @@ export const api = {
   messages: (conversationId: string) => request<{ items: ChatMessage[] }>(`/conversations/${conversationId}/messages`),
   send: (conversationId: string, body: SendMessageRequest) => post<SendMessageResponse>(`/conversations/${conversationId}/messages`, body),
   cancel: (taskId: string) => post<TaskSummary>(`/tasks/${taskId}/cancel`),
+  integrations: () => request<IntegrationList>("/integrations"),
+  connectMicrosoftCalendar: () => post<ConnectIntegrationResponse>("/integrations/microsoft-calendar/connect"),
+  disconnectMicrosoftCalendar: () => request<void>("/integrations/microsoft-calendar", { method: "DELETE" }),
+  voiceSettings: () => request<VoiceSettings>("/voice/settings"),
+  updateVoicePreferences: (body: UpdateVoicePreferences) => request<VoicePreferences>("/voice/preferences", { method: "PUT", body: JSON.stringify(body) }),
+  /** Customer demo: sample data and simulated actions only (served by the API's isolated DemoModule). */
+  demo: {
+    workspace: () => request<DemoWorkspace>("/demo/workspace"),
+    startTurn: (body: DemoTurnRequest) => post<DemoTurnResponse>("/demo/turns", body),
+    cancelTurn: (turnId: string) => post<{ turnId: string; status: string }>(`/demo/turns/${turnId}/cancel`),
+    approve: (actionId: string) => post<DemoAction>(`/demo/actions/${encodeURIComponent(actionId)}/approve`),
+    reject: (actionId: string) => post<DemoAction>(`/demo/actions/${encodeURIComponent(actionId)}/reject`),
+    reset: () => post<void>("/demo/reset"),
+  },
+  transcribe: (audio: Blob, language?: VoiceLanguage, signal?: AbortSignal) => {
+    const form = new FormData();
+    form.append("audio", audio, "recording");
+    if (language) form.append("language", language);
+    return request<TranscriptionResponse>("/voice/transcriptions", { method: "POST", body: form, signal });
+  },
 };

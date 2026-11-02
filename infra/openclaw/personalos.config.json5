@@ -52,9 +52,33 @@
     },
   },
 
+  // PersonalOS tools, served by the PersonalOS API over MCP (read-only in Phase 3).
+  // stdio bridge reading the token from a mounted file: in 2026.10.9 MCP headers/env are plain
+  // config literals (no SecretRef), and config.get exposes them to any read-scoped client.
+  mcp: {
+    servers: {
+      personalos: {
+        transport: "stdio",
+        command: "node",
+        args: ["/opt/personalos/mcp-bridge/personalos-mcp-bridge.mjs"],
+        env: {
+          PERSONALOS_MCP_URL: "http://host.docker.internal:4000/api/mcp",
+          PERSONALOS_MCP_TOKEN_FILE: "/run/secrets/personalos-mcp-token",
+        },
+        // Only the read-only calendar tool, even if the server ever offers more.
+        toolFilter: { include: ["calendar_list_events"] },
+        connectionTimeoutMs: 10000,
+        requestTimeoutMs: 20000,
+        enabled: true,
+      },
+    },
+  },
+
   agents: {
     defaults: {
       heartbeat: { every: "0m" },
+      // Lets the model reason about "tomorrow"; the tool itself resolves dates server-side.
+      userTimezone: "Asia/Kolkata",
     },
     entries: {
       // Onboarding-created agent; still the ambient heartbeat/system owner. It has no model
@@ -86,8 +110,8 @@
         tools: {
           profile: "minimal",
           codeMode: { enabled: false },
-          // Read-only information tools only.
-          alsoAllow: ["web_search", "web_fetch"],
+          // Read-only information tools only. MCP tools are named <server>__<tool>.
+          alsoAllow: ["web_search", "web_fetch", "personalos__calendar_list_events"],
         },
       },
     },

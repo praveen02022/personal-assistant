@@ -1,14 +1,29 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Logo } from "@/components/ui/logo";
+import { Field, fieldClass } from "@/components/ui/primitives";
 import { api, ApiRequestError } from "@/lib/api";
+import { hasSeenWelcome } from "@/lib/onboarding";
 
 export default function LoginPage() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+
+  // Already signed in (valid cookie)? Go to the app. A stale cookie gets a 401 and is cleared by the API.
+  useEffect(() => {
+    let cancelled = false;
+    api.me().then(
+      () => !cancelled && router.replace("/"),
+      () => undefined,
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [router]);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -17,7 +32,7 @@ export default function LoginPage() {
     setError(null);
     try {
       await api.login({ email: String(form.get("email")), password: String(form.get("password")) });
-      router.replace("/");
+      router.replace(hasSeenWelcome() ? "/" : "/welcome");
     } catch (err) {
       setError(err instanceof ApiRequestError ? err.message : "Could not sign in. Try again.");
       setPending(false);
@@ -25,28 +40,26 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="grid min-h-dvh place-items-center px-6">
+    <main className="grid min-h-dvh place-items-center px-4 py-10">
       <div className="w-full max-w-sm">
-        <div className="mb-10 text-center">
-          <div className="mx-auto mb-5 h-12 w-12 rounded-2xl bg-accent shadow-[0_8px_30px_-8px_var(--accent)]" aria-hidden />
-          <h1 className="font-display text-3xl tracking-tight">Welcome back</h1>
-          <p className="mt-2 text-ink-2">Sign in to your personal assistant.</p>
+        <div className="mb-8">
+          <Logo />
+          <h1 className="mt-8 text-display">Sign in</h1>
+          <p className="mt-1 text-ink-2">Welcome back to your assistant.</p>
         </div>
-        <form onSubmit={onSubmit} className="space-y-4 rounded-3xl border border-line bg-surface p-6 shadow-sm">
-          <label className="block">
-            <span className="mb-1.5 block text-sm font-medium text-ink-2">Email</span>
-            <input name="email" type="email" autoComplete="username" required className="h-11 w-full rounded-xl border border-line bg-bg px-3 outline-none focus:border-accent" />
-          </label>
-          <label className="block">
-            <span className="mb-1.5 block text-sm font-medium text-ink-2">Password</span>
-            <input name="password" type="password" autoComplete="current-password" required className="h-11 w-full rounded-xl border border-line bg-bg px-3 outline-none focus:border-accent" />
-          </label>
+        <form onSubmit={onSubmit} className="space-y-4 rounded-xl border border-line bg-surface p-6 shadow-e1">
+          <Field label="Email">
+            <input name="email" type="email" autoComplete="username" required className={fieldClass} />
+          </Field>
+          <Field label="Password">
+            <input name="password" type="password" autoComplete="current-password" required className={fieldClass} />
+          </Field>
           {error && (
-            <p role="alert" className="rounded-xl bg-accent-soft px-3 py-2 text-sm text-danger">
+            <p role="alert" className="rounded-lg bg-danger-soft px-3 py-2 text-caption text-danger">
               {error}
             </p>
           )}
-          <Button type="submit" className="w-full justify-center" disabled={pending}>
+          <Button type="submit" className="w-full" disabled={pending}>
             {pending ? "Signing in…" : "Sign in"}
           </Button>
         </form>

@@ -14,9 +14,11 @@
     "prisma:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
-    "owner:create": "node --env-file=.env dist/scripts/create-owner.js"
+    "owner:create": "node --env-file=.env dist/scripts/create-owner.js",
+    "agent-token:create": "node --env-file=.env dist/scripts/create-agent-token.js"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "1.32.2",
     "@nestjs/common": "12.3.2",
     "@nestjs/core": "12.3.2",
     "@nestjs/platform-express": "12.3.2",
@@ -29,6 +31,7 @@
     "argon2": "0.45.1",
     "cookie-parser": "1.4.7",
     "express": "5.3.0",
+    "multer": "2.5.0",
     "pg": "8.23.1",
     "reflect-metadata": "0.2.2",
     "rxjs": "7.8.2",
@@ -40,6 +43,7 @@
     "@swc/core": "1.16.21",
     "@types/cookie-parser": "1.4.10",
     "@types/express": "5.0.6",
+    "@types/multer": "2.3.0",
     "@types/node": "22.20.5",
     "@types/pg": "8.23.1",
     "@types/supertest": "7.2.1",

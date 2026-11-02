@@ -57,8 +57,12 @@ export function reduceTask(view: TaskView, event: TaskEvent): TaskView {
 
 const EVENT_TYPES: TaskEventType[] = ["task.status", "task.progress", "tool.started", "tool.finished", "assistant.text", "assistant.final", "task.error"];
 
-/** Subscribes to /api/tasks/:id/events. Closes itself on a terminal status. */
-export function useTaskStream(taskId: string | null): TaskView {
+/** Where a task's SSE stream lives: real tasks, or scripted demo turns (same event shapes). */
+export type StreamSource = "tasks" | "demo";
+const streamUrl = (source: StreamSource, id: string) => (source === "demo" ? `/api/demo/turns/${id}/events` : `/api/tasks/${id}/events`);
+
+/** Subscribes to a task's events. Closes itself on a terminal status. */
+export function useTaskStream(taskId: string | null, source: StreamSource = "tasks"): TaskView {
   const [view, dispatch] = useReducer(
     (state: TaskView, action: TaskEvent | { type: "reset" }) => (action.type === "reset" ? initialTaskView : reduceTask(state, action)),
     initialTaskView,
@@ -67,16 +71,16 @@ export function useTaskStream(taskId: string | null): TaskView {
   useEffect(() => {
     dispatch({ type: "reset" });
     if (!taskId) return;
-    const source = new EventSource(`/api/tasks/${taskId}/events`);
+    const es = new EventSource(streamUrl(source, taskId));
     const onMessage = (msg: MessageEvent<string>) => {
       const parsed = TaskEvent.safeParse(JSON.parse(msg.data));
       if (!parsed.success) return; // unknown/newer event shape: ignore rather than crash
       dispatch(parsed.data);
-      if (parsed.data.type === "task.status" && isTerminal(parsed.data.status)) source.close();
+      if (parsed.data.type === "task.status" && isTerminal(parsed.data.status)) es.close();
     };
-    for (const t of EVENT_TYPES) source.addEventListener(t, onMessage);
-    return () => source.close();
-  }, [taskId]);
+    for (const t of EVENT_TYPES) es.addEventListener(t, onMessage);
+    return () => es.close();
+  }, [taskId, source]);
 
   return view;
 }

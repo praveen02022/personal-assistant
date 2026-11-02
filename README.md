@@ -39,6 +39,10 @@ pnpm --filter @personalos/api start          # API
 pnpm --filter @personalos/web start          # Web → http://localhost:3000
 ```
 
+Pages: `/` Home · `/assistant` · `/connections` · `/settings` (theme + voice) · `/welcome`. The customer demo lives at `/demo` (sample data, simulated actions, isolated on the backend); see [docs/demo/README.md](docs/demo/README.md) for the presentation script and what is simulated vs live.
+
+UI live tests (demo flow, themes, keyboard, axe contrast, phone layout, screenshots): `pnpm --filter @personalos/web exec playwright test --project=ui --project=ui-mobile`.
+
 First run of a new API device: the API logs `Gateway pairing required … approve <requestId>`. Review, then approve:
 
 ```bash
@@ -54,6 +58,16 @@ Owner account (single user):
 OWNER_EMAIL=you@example.com OWNER_NAME="Your Name" OWNER_PASSWORD='…12+ chars…' \
   pnpm --filter @personalos/api owner:create            # add --reset-password to rotate (revokes sessions)
 ```
+
+## Voice (Phase 2)
+
+Push-to-talk in the message box: **hold** the mic and release to finish, or **tap** to start and tap again to stop (Esc cancels). The transcript lands in the message box for you to edit; nothing is sent automatically. Answers to voice questions are read aloud (toggle in **Voice settings**), and every answer has **Read aloud**.
+
+- Speech to text: Azure fast transcription, browser-native WebM/Opus, language Auto (en-IN + ta-IN), English or Tamil
+- Text to speech: Azure neural voices (en-IN Neerja by default, ta-IN Pallavi), browser speech as fallback
+- Audio is never stored; the audit log keeps metadata only
+- Config: `AZURE_SPEECH_KEY`, `AZURE_SPEECH_REGION` in `apps/api/.env` (use an S0 resource; F0 rate-limits after ~10 requests/minute)
+- Findings: [`docs/spikes/0002-azure-voice-spike.md`](docs/spikes/0002-azure-voice-spike.md)
 
 ## Checks
 

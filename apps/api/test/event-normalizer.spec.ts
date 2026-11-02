@@ -45,6 +45,11 @@ describe("normalizeGatewayEvent (recorded 2026.10.9 traffic)", () => {
     expect(terminal).toMatchObject({ state: "error", errorKind: "timeout" });
   });
 
+  it("labels PersonalOS MCP tools in plain words", () => {
+    const frame = { event: "agent", payload: { runId: "r", sessionKey: "s", stream: "item", data: { kind: "tool", phase: "start", name: "personalos__calendar_list_events", toolCallId: "t", title: "personalos__calendar_list_events" } } };
+    expect(normalizeGatewayEvent(frame)).toMatchObject({ kind: "tool", title: "Checking your calendar" });
+  });
+
   it("drops orchestration wrapper tools and frames without run context", () => {
     const wrapper = { event: "agent", payload: { runId: "r", sessionKey: "s", stream: "item", data: { kind: "tool", phase: "start", name: "tool_call", toolCallId: "t" } } };
     expect(normalizeGatewayEvent(wrapper)).toBeNull();

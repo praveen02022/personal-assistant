@@ -11,6 +11,11 @@ const STATUS_PHASES: Record<string, ProgressPhase> = {
   starting_model: "thinking",
 };
 
+/** Human labels for our own tools (MCP tools arrive as "<server>__<tool>"). */
+const TOOL_LABELS: Record<string, string> = {
+  personalos__calendar_list_events: "Checking your calendar",
+};
+
 /** Orchestration wrappers (Tool Search / Code Mode). Their nested leaf calls are what users care about. */
 const CONTROL_TOOLS = new Set(["tool_call", "tool_search", "tool_describe", "exec", "wait"]);
 
@@ -68,7 +73,7 @@ export function normalizeGatewayEvent(frame: Frame): RunEvent | null {
         phase: data.phase,
         toolCallId,
         name,
-        title: str(data.title) ?? name,
+        title: TOOL_LABELS[name] ?? str(data.title) ?? name,
         ok: data.phase === "end" ? data.status === "completed" : null,
       };
     }

@@ -36,7 +36,16 @@ export class ApiExceptionFilter implements ExceptionFilter {
     }
     if (exception instanceof HttpException) {
       const status = exception.getStatus();
-      const code = status === 404 ? ErrorCodes.NOT_FOUND : status === 401 ? ErrorCodes.UNAUTHENTICATED : ErrorCodes.INTERNAL;
+      const code =
+        status === 404
+          ? ErrorCodes.NOT_FOUND
+          : status === 401
+            ? ErrorCodes.UNAUTHENTICATED
+            : status === 413
+              ? ErrorCodes.AUDIO_TOO_LARGE // multer fileSize limit
+              : status === 400
+                ? ErrorCodes.VALIDATION_FAILED // e.g. malformed multipart
+                : ErrorCodes.INTERNAL;
       return { status, body: { error: { code, message: exception.message } } };
     }
     this.logger.error(exception instanceof Error ? (exception.stack ?? exception.message) : String(exception));

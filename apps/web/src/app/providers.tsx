@@ -1,9 +1,11 @@
 "use client";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { MotionConfig } from "motion/react";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ApiRequestError, UNAUTHENTICATED_EVENT } from "@/lib/api";
+import { ThemeProvider } from "@/lib/theme";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [client] = useState(
@@ -30,5 +32,12 @@ export function Providers({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener(UNAUTHENTICATED_EVENT, onUnauthenticated);
   }, [client, pathname, router]);
 
-  return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
+  return (
+    <ThemeProvider>
+      {/* Animations follow the OS "reduce motion" setting. */}
+      <MotionConfig reducedMotion="user">
+        <QueryClientProvider client={client}>{children}</QueryClientProvider>
+      </MotionConfig>
+    </ThemeProvider>
+  );
 }

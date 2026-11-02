@@ -1,32 +1,32 @@
 import { createHash } from "node:crypto";
 import { Inject, Injectable, Logger, type OnModuleDestroy, type OnModuleInit } from "@nestjs/common";
-import { GatewayClient, isGatewayProtocolResponseError } from "@openclaw/gateway-client";
+import { GatewayClient, GatewayClientRequestTimeoutError, isGatewayProtocolResponseError } from "@openclaw/gateway-client";
 import { GATEWAY_CLIENT_CAPS, GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "@openclaw/gateway-protocol/client-info";
 import { PROTOCOL_VERSION } from "@openclaw/gateway-protocol/version";
 import type { GatewayState } from "@personalos/contracts";
 import { BehaviorSubject, Subject } from "rxjs";
-import { AppError } from "../common/errors.js";
 import { ENV, type Env } from "../config/env.js";
 import { FileDeviceStore, publicKeyRawBase64Url, signPayload } from "./device-store.js";
 import { normalizeGatewayEvent } from "./event-normalizer.js";
-import { AgentGateway, type HistoryMessage, messageText, type RunEvent, type RunWaitResult, type SessionHistory } from "./gateway.port.js";
+import {
+  AgentGateway,
+  GatewayAckUnknownError,
+  GatewayNotSentError,
+  GatewayRpcError,
+  type HistoryMessage,
+  messageText,
+  type RunEvent,
+  type RunWaitResult,
+  type SessionHistory,
+} from "./gateway.port.js";
+
+export { GatewayRpcError };
 
 const ROLE = "operator";
 /** Least privilege: read + write. No admin, no approvals (until Phase 4), no pairing. */
 const SCOPES = ["operator.read", "operator.write"];
 const PAIRING_RETRY_MS = 10_000;
 const PAUSED_RETRY_MS = 60_000;
-
-/** RPC error from the Gateway (it answered, and said no). Distinct from "unreachable". */
-export class GatewayRpcError extends Error {
-  constructor(
-    readonly method: string,
-    readonly gatewayCode: string | null,
-    message: string,
-  ) {
-    super(`${method}: ${message}`);
-  }
-}
 
 @Injectable()
 export class OpenClawGatewayService extends AgentGateway implements OnModuleInit, OnModuleDestroy {
@@ -168,7 +168,7 @@ export class OpenClawGatewayService extends AgentGateway implements OnModuleInit
   // ---------- RPC wrappers ----------
 
   private async request<T>(method: string, params: unknown, timeoutMs?: number): Promise<T> {
-    if (!this.client || this.state$.value !== "connected") throw AppError.gatewayUnavailable({ state: this.state$.value });
+    if (!this.client || this.state$.value !== "connected") throw new GatewayNotSentError(`state ${this.state$.value}`);
     try {
       return await this.client.request<T>(method, params, timeoutMs ? { timeoutMs } : undefined);
     } catch (err) {
@@ -176,19 +176,27 @@ export class OpenClawGatewayService extends AgentGateway implements OnModuleInit
         const e = err as Error & { gatewayCode?: string; code?: string };
         throw new GatewayRpcError(method, e.gatewayCode ?? e.code ?? null, e.message);
       }
-      throw AppError.gatewayUnavailable({ method }); // transport failure / local timeout
+      // The client tells us whether the frame was written before its local deadline expired.
+      if (err instanceof GatewayClientRequestTimeoutError && !err.requestSent) throw new GatewayNotSentError(`${method} timed out before sending`);
+      throw new GatewayAckUnknownError(method); // sent (or unknown), reply lost: outcome unknown
     }
   }
 
-  async ensureSession(sessionKey: string, label: string): Promise<void> {
+  /**
+   * OpenClaw requires session labels to be unique ("label already in use"), and titles repeat
+   * ("Good morning…"), so the label is derived from the session key, which is unique by construction.
+   * The human-readable title stays in our database.
+   */
+  async ensureSession(sessionKey: string, _title: string): Promise<void> {
     if (this.ensuredSessions.has(sessionKey)) return;
+    const label = `personalos ${sessionKey.split(":").at(-1)}`;
     const agentId = this.env.OPENCLAW_AGENT_ID;
     const found = await this.request<{ session: unknown }>("sessions.describe", { key: sessionKey, agentId });
     if (!found.session) {
       await this.request("sessions.create", {
         key: sessionKey,
         agentId,
-        label: label.slice(0, 80),
+        label,
         permissionMode: "read-only", // per-session layer on top of the Gateway tool policy
         // Deterministic: a retried create after a lost response is deduplicated by the Gateway.
         idempotencyKey: createHash("sha256").update(`create:${sessionKey}`).digest("hex").slice(0, 32),

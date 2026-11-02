@@ -14,7 +14,7 @@ import { AppError } from "../common/errors.js";
 import { ENV, type Env } from "../config/env.js";
 import type { AppTask } from "../generated/prisma/client.js";
 import { Prisma } from "../generated/prisma/client.js";
-import { AgentGateway, messageText, type RunEvent } from "../gateway/gateway.port.js";
+import { AgentGateway, GatewayAckUnknownError, GatewayNotSentError, messageText, type RunEvent } from "../gateway/gateway.port.js";
 import { PrismaService } from "../prisma/prisma.service.js";
 import { decideReconciliation } from "./reconcile.js";
 import { TaskStreamRegistry } from "./task-stream.registry.js";
@@ -24,6 +24,7 @@ const SWEEP_INTERVAL_MS = 30_000;
 const STALE_RUNNING_MS = 120_000; // no events for this long -> ask the runtime
 const QUEUED_GRACE_MS = 60_000; // a QUEUED task older than this lost its submit
 const LAST_EVENT_WRITE_INTERVAL_MS = 10_000;
+const ACK_LOST_RECONCILE_MS = 5_000;
 
 /** User-facing messages per runtime error kind. Raw runtime errors are logged, never shown. */
 const ERROR_COPY: Record<string, { code: string; message: string; retryable: boolean; status: TaskStatus }> = {
@@ -129,7 +130,10 @@ export class TasksService implements OnModuleInit, OnModuleDestroy {
     this.registry.emit(task.id, { type: "task.status", status: "QUEUED" });
 
     try {
-      await this.gateway.ensureSession(sessionKey, title);
+      // Before the message is sent: any failure here is definitive (nothing was submitted).
+      await this.gateway.ensureSession(sessionKey, title).catch((err: unknown) => {
+        throw err instanceof GatewayAckUnknownError ? new GatewayNotSentError("session setup unconfirmed") : err;
+      });
       const { runId } = await this.gateway.sendMessage({ sessionKey, message: dto.text, idempotencyKey: task.id });
       this.registry.bindRun(runId, task.id);
       await this.prisma.appTask.update({ where: { id: task.id }, data: { openClawRunId: runId, runIds: [runId], startedAt: new Date() } });
@@ -137,6 +141,16 @@ export class TasksService implements OnModuleInit, OnModuleDestroy {
       const { count } = await this.prisma.appTask.updateMany({ where: { id: task.id, status: "QUEUED" }, data: { status: "RUNNING" } });
       if (count === 1) this.registry.emit(task.id, { type: "task.status", status: "RUNNING" });
     } catch (err) {
+      if (err instanceof GatewayAckUnknownError) {
+        // The Gateway may have accepted the run; only its reply was lost. Marking the task failed
+        // here would orphan a real answer. Keep it QUEUED and let events or reconciliation decide:
+        // runId === task.id, so a later agent.wait / chat.history settles it either way.
+        this.logger.warn(`submit ${task.id}: acknowledgment lost; reconciling instead of failing`);
+        await this.audit.record({ userId, action: "task.ack_lost", resourceType: "task", resourceId: task.id, correlationId: task.id });
+        setTimeout(() => void this.reconcileById(task.id, "ack lost").catch(() => undefined), ACK_LOST_RECONCILE_MS).unref();
+        return { taskId: task.id, status: "QUEUED", deduplicated: false };
+      }
+      // Definitive: never sent, or explicitly rejected by the Gateway.
       this.logger.warn(`submit ${task.id} failed: ${(err as Error).message}`);
       this.registry.emit(task.id, { type: "task.error", code: ErrorCodes.GATEWAY_UNAVAILABLE, message: "Could not reach the assistant.", retryable: true });
       await this.settle(task.id, "FAILED", "GATEWAY_SEND_FAILED");
@@ -316,6 +330,11 @@ export class TasksService implements OnModuleInit, OnModuleDestroy {
       if (task.status === "QUEUED" && Date.now() - task.createdAt.getTime() < QUEUED_GRACE_MS) continue; // submit in flight
       await this.reconcileTask(task, reason).catch((e: Error) => this.logger.warn(`reconcile ${task.id}: ${e.message}`));
     }
+  }
+
+  async reconcileById(taskId: string, reason: string) {
+    const task = await this.prisma.appTask.findUnique({ where: { id: taskId }, include: { conversation: { select: { openClawSessionKey: true } } } });
+    if (task && !isTerminal(task.status)) await this.reconcileTask(task, reason);
   }
 
   async reconcileTask(task: TaskWithSession, reason: string) {

@@ -16,6 +16,20 @@ const EnvSchema = z.object({
   OPENCLAW_GATEWAY_TOKEN_FILE: z.string().optional(),
   OPENCLAW_AGENT_ID: z.string().regex(/^[a-z0-9-]+$/).default("personalos"),
   OPENCLAW_DEVICE_DIR: z.string().min(1),
+  /** Azure Speech (STT + TTS). Optional: voice endpoints report VOICE_UNAVAILABLE without them. */
+  AZURE_SPEECH_KEY: z.string().min(16).optional(),
+  AZURE_SPEECH_REGION: z.string().regex(/^[a-z0-9]+$/).optional(),
+  /** Integration credential vault (AES-256-GCM). Base64 of exactly 32 bytes. */
+  CREDENTIAL_ENCRYPTION_KEY: z
+    .string()
+    .refine((v) => Buffer.from(v, "base64").length === 32, "must be base64 of 32 bytes")
+    .optional(),
+  CREDENTIAL_KEY_VERSION: z.coerce.number().int().min(1).default(1),
+  /** Microsoft 365 calendar (Entra app registration). Optional: the integration is hidden without them. */
+  MS_TENANT_ID: z.string().min(1).optional(),
+  MS_CLIENT_ID: z.guid().optional(), // Entra application (client) ID
+  MS_CLIENT_SECRET: z.string().min(8).optional(),
+  MS_REDIRECT_URI: z.url().optional(),
   /** Hard ceiling for one agent run before the sweeper aborts it. */
   TASK_MAX_RUNTIME_SECONDS: z.coerce.number().int().min(30).default(900),
 });
